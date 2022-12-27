@@ -1,0 +1,6 @@
+{
+    "name": "pluggable/plugin",
+    "description": "Plugin Plugin Toolkit",
+    "license": "GPL-3.0-or-later",
+    "require": {}
+}
