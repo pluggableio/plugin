@@ -1,4 +1,4 @@
-## License management toolkit for Pluggable plugins.
+## License management toolkit for Pluggable plugins
 
 
 See more https://my.pluggable.io
