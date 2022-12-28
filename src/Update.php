@@ -1,5 +1,5 @@
 <?php
-namespace Pluggable\Product;
+namespace Pluggable\Plugin;
 
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;

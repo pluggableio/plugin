@@ -1,5 +1,5 @@
 <?php
-namespace Pluggable\Product;
+namespace Pluggable\Plugin;
 
 /**
  * if accessed directly, exit.
@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * @package Product
+ * @package Plugin
  * @subpackage Notice
  * @author Pluggable <hi@pluggable.io>
  */
