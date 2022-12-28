@@ -48,6 +48,10 @@ class License {
 	 */
 	public function __construct( $plugin, $item_id, $redirect = '', $server = 'https://my.pluggable.io' ) {
 
+		if( ! function_exists( 'get_plugin_data' ) ) {
+			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+		}
+
 		$this->plugin 	= get_plugin_data( $plugin );
 
 		$this->item_id 		= $item_id;
@@ -67,7 +71,7 @@ class License {
 		register_activation_hook( __FILE__, [ $this, 'install' ] );
 		add_action( 'pluggable-daily', [ $this, 'validate' ] );
 		add_action( 'admin_init', [ $this, 'init' ] );
-		add_action( 'plugins_loaded', [ $this, 'gather_notices' ] );
+		add_action( 'admin_notices', [ $this, 'show_notices' ] );
 		add_action( 'rest_api_init', [ $this, 'register_endpoints' ] );
 	}
 
@@ -136,7 +140,9 @@ class License {
 		wp_redirect( add_query_arg( $query, admin_url( 'admin.php' ) ) );
 	}
 
-	public function gather_notices() {
+	public function show_notices() {
+
+		if( apply_filters( 'pluggable_hide-notices', false, $this->plugin ) ) return;
 
 		if( did_action( "_license_{$this->slug}_notice" ) ) return;
 		do_action( "_license_{$this->slug}_notice" );
@@ -149,7 +155,7 @@ class License {
 			$notice = '';
 			$notice .= '<p>' . sprintf( __( '<strong>ALERT:</strong> In order to enjoy the features of <strong>%1$s</strong>, you need to activate the license first. Sorry, but the plugin won\'t work without activation! Please <a href="%2$s">activate it now</a>.', 'pluggable' ), $this->name, $this->get_activation_url() ) . '</p>';
 
-			Notice::add( $notice, 'error', true );
+			echo '<div class="notice notice-error">' . $notice . '</div>';
 		}
 
 		// about to expire?
@@ -158,7 +164,7 @@ class License {
 			$notice = '';
 			$notice .= '<p>' . sprintf( __( '<strong>ALERT:</strong> Your license for <strong>%1$s</strong> is about to expire in <strong>%2$s</strong>. The plugin will stop working without a valid license key. <a href="%3$s">Renew your license</a> now and get a special <strong>%4$s discount</strong>!', 'pluggable' ), $this->name, human_time_diff( $expiry, time() ), $this->get_renewal_url(), '20%' ) . '</p>';
 
-			Notice::add( $notice, 'error', true );
+			echo '<div class="notice notice-error">' . $notice . '</div>';
 		}
 
 		// expired to invalid license?
@@ -167,7 +173,7 @@ class License {
 			$notice = '';
 			$notice .= '<p>' . sprintf( __( '<strong>WARNING:</strong> It looks like <strong>%1$s</strong> can\'t connect to our server and is unable to receive updates! The plugin might stop working if it\'s not connected. <a href="%2$s">Reconnect Now</a>.', 'pluggable' ), $this->name, $this->get_deactivation_url() ) . '</p>';
 
-			Notice::add( $notice, 'warning', true );
+			echo '<div class="notice notice-warning">' . $notice . '</div>';
 		}
 	}
 
@@ -219,7 +225,7 @@ class License {
 
 	public function register_endpoints() {
 		register_rest_route( 'pluggable', 'license', [
-			'methods'				=> 'GET',
+			'methods'				=> 'POST',
 			'callback'				=> [ $this, 'callback_action' ],
 			'permission_callback'	=> '__return_true'
 		] );
@@ -240,12 +246,12 @@ class License {
 	 * @param string $item_name the plugin name
 	 */
 	public function do( $action, $license, $item_name ) {
-
 		if( did_action( "_{$this->slug}_did_license_action" ) && $this->validating !== true ) return;
 		do_action( "_{$this->slug}_did_license_action" );
 
 		// for activate and deactivate, if slug doesn't match, abort
-		if( in_array( $action, [ 'activate', 'deactivate' ] ) && ( ! isset( $_GET['item_slug'] ) || $_GET['item_slug'] != $this->slug ) ) return;
+		// if( in_array( $action, [ 'activate', 'deactivate' ] ) && ( ! isset( $_GET['item_slug'] ) || $_GET['item_slug'] != $this->slug ) ) return;
+		if( ! in_array( $action, [ 'activate', 'deactivate' ] ) ) return;
 
 		$_response = [
 			'status'	=> false,
