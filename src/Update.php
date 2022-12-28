@@ -6,9 +6,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
  * Allows plugins to use their own update API.
- *
- * @author Easy Digital Downloads
- * @version 1.6.18
  */
 class Update {
 
