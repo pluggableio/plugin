@@ -1,4 +1,4 @@
 ## License management toolkit for Pluggable plugins
 
 
-See more https://my.pluggable.io
+See more https://help.pluggable.io/docs/developer/license-integration/
