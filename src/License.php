@@ -43,23 +43,32 @@ class License {
 	/**
 	 * @param string $plugin the plugin __FILE__
 	 * @param int $item_id the post_ID as shown in the Pluggable site
-	 * @param string $redirect where it should take after activating a license
-	 * @param string $server the API server
+	 * 
+	 * @since 0.93
+	 * @param array $args[
+	 * 		string $redirect where it should take after activating a license
+	 * 		string $server the API server
+	 * ]
 	 */
-	public function __construct( $plugin, $item_id, $redirect = '', $server = 'https://my.pluggable.io' ) {
+	public function __construct( $plugin, $item_id, $args = [] ) {
 
 		if( ! function_exists( 'get_plugin_data' ) ) {
 			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		}
 
+		$this->item_id	= $item_id;
+
 		$this->plugin 	= get_plugin_data( $plugin );
+		$this->slug		= $this->plugin['TextDomain'];
+		$this->name		= $this->plugin['Name'];
 
-		$this->item_id 		= $item_id;
-		$this->server 		= untrailingslashit( $server );
+		$this->args = wp_parse_args( $args, [
+			'redirect'	=> admin_url( "admin.php?page={$this->slug}" ),
+			'server'	=> 'https://my.pluggable.io'
+		] );
 
-		$this->slug 		= $this->plugin['TextDomain'];
-		$this->name 		= $this->plugin['Name'];
-		$this->redirect 	= $redirect != '' ? $redirect : admin_url( "admin.php?page={$this->slug}" );
+		$this->server 		= untrailingslashit( $this->args['server'] );
+		$this->redirect 	= $this->args['redirect'];
 		
 		$this->plugin['license'] = $this;
 		$update	= new Update( $this->plugin, $item_id, $server );
@@ -142,7 +151,7 @@ class License {
 
 	public function show_notices() {
 
-		if( apply_filters( 'pluggable_hide-notices', false, $this->plugin ) ) return;
+		if( apply_filters( 'pluggable_hide-notices', false, $this->plugin ) || $this->args['hide_notice'] ) return;
 
 		if( did_action( "_license_{$this->slug}_notice" ) ) return;
 		do_action( "_license_{$this->slug}_notice" );
