@@ -71,7 +71,7 @@ class License {
 		$this->redirect 	= $this->args['redirect'];
 		
 		$this->plugin['license'] = $this;
-		$update	= new Update( $this->plugin, $item_id, $server );
+		$update	= new Update( $this->plugin, $item_id, $this->server );
 
 		self::hooks();
 	}
