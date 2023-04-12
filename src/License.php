@@ -31,6 +31,11 @@ class License {
 	public $name;
 	
 	/**
+	 * @var the server URL
+	 */
+	public $server;
+	
+	/**
 	 * @var where we should redirect after activation
 	 */
 	public $redirect;
@@ -73,7 +78,7 @@ class License {
 		$this->plugin['license'] = $this;
 		$update	= new Update( $this->plugin, $item_id, $this->server );
 
-		self::hooks();
+		$this->hooks();
 	}
 
 	public function hooks() {
