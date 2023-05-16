@@ -32,8 +32,8 @@ class Update {
 	 * @param string  $_plugin_file Path to the plugin file.
 	 * @param array   $_api_data    Optional data to send with API calls.
 	 */
-	public function __construct( $plugin, $item_id, $server ) {
-
+	public function __construct( $plugin, $server ) {
+		
 		global $edd_plugin_data;
 		
 		$this->plugin = $plugin;
@@ -41,7 +41,7 @@ class Update {
 		$_api_data = [
 			'version' => $this->plugin['Version'],
 			'license' => $this->plugin['license']->get_license_key(),
-			'item_id' => $item_id,
+			'item_id' => $this->plugin['license']->get_license_item_id(),
 			'author'  => $this->plugin['Author'],
 			'beta'    => isset( $this->plugin['beta'] ) && $this->plugin['beta'],
 		];
@@ -67,7 +67,7 @@ class Update {
 		do_action( 'post_edd_sl_plugin_updater_setup', $edd_plugin_data );
 
 		// Set up hooks.
-		self::hooks();
+		$this->hooks();
 
 	}
 
