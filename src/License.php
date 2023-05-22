@@ -31,6 +31,11 @@ class License {
 	public $name;
 	
 	/**
+	 * @var the server URL
+	 */
+	public $server;
+	
+	/**
 	 * @var where we should redirect after activation
 	 */
 	public $redirect;
@@ -42,29 +47,37 @@ class License {
 
 	/**
 	 * @param string $plugin the plugin __FILE__
-	 * @param int $item_id the post_ID as shown in the Pluggable site
-	 * @param string $redirect where it should take after activating a license
-	 * @param string $server the API server
+	 * 
+	 * @since 0.93
+	 * @param array $args[
+	 * 		string $redirect where it should take after activating a license
+	 * 		string $server the API server
+	 * ]
 	 */
-	public function __construct( $plugin, $item_id, $redirect = '', $server = 'https://my.pluggable.io' ) {
+	public function __construct( $plugin,$args = [] ) {
 
 		if( ! function_exists( 'get_plugin_data' ) ) {
 			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		}
 
 		$this->plugin 	= get_plugin_data( $plugin );
+		$this->slug		= $this->plugin['TextDomain'];
+		$this->name		= $this->plugin['Name'];
 
-		$this->item_id 		= $item_id;
-		$this->server 		= untrailingslashit( $server );
+		$this->args = wp_parse_args( $args, [
+			'redirect'	=> admin_url( "admin.php?page={$this->slug}" ),
+			'server'	=> 'https://my.pluggable.io',
+			'item_id'	=> 0,
+		] );
 
-		$this->slug 		= $this->plugin['TextDomain'];
-		$this->name 		= $this->plugin['Name'];
-		$this->redirect 	= $redirect != '' ? $redirect : admin_url( "admin.php?page={$this->slug}" );
+		$this->server 		= untrailingslashit( $this->args['server'] );
+		$this->redirect 	= $this->args['redirect'];
+		$this->item_id		= $this->args['item_id'];
 		
 		$this->plugin['license'] = $this;
-		$update	= new Update( $this->plugin, $item_id, $server );
+		$update	= new Update( $this->plugin, $this->server );
 
-		self::hooks();
+		$this->hooks();
 	}
 
 	public function hooks() {
@@ -142,7 +155,7 @@ class License {
 
 	public function show_notices() {
 
-		if( apply_filters( 'pluggable_hide-notices', false, $this->plugin ) ) return;
+		if( apply_filters( 'pluggable_hide-notices', false, $this->plugin ) || ( isset( $this->args['hide_notice'] ) && $this->args['hide_notice'] ) ) return;
 
 		if( did_action( "_license_{$this->slug}_notice" ) ) return;
 		do_action( "_license_{$this->slug}_notice" );
@@ -336,6 +349,8 @@ class License {
 				update_option( $this->get_license_status_name(), $license_data->license );
 				update_option( $this->get_license_expiry_name(), ( $license_data->expires == 'lifetime' ? 4765132799 : strtotime( $license_data->expires ) ) );
 				update_option( $this->get_license_meta_name(), $license_data );
+				update_option( $this->get_license_meta_name(), $license_data );
+				update_option( $this->get_license_item_id_name(), $_GET['item_id'] );
 
 				$_response['status']	= $license_data;
 				$_response['message']	= __( 'License activated', 'pluggable' );
@@ -365,6 +380,7 @@ class License {
 			delete_option( $this->get_license_status_name() );
 			delete_option( $this->get_license_expiry_name() );
 			delete_option( $this->get_license_meta_name() );
+			delete_option( $this->get_license_item_id_name() );
 		}
 
 		// it's a verification request
@@ -388,10 +404,10 @@ class License {
 		$query['pl-nonce']		= wp_create_nonce( 'pluggable' );
 
 		$activation_url = add_query_arg( [
-			'item_id'	=> $this->item_id,
 			'item_slug'	=> $this->slug,
+			'item_id'	=> $this->item_id,
 			'pl-nonce'	=> wp_create_nonce( 'pluggable' ),
-			'track'		=> base64_encode( $this->redirect )
+			'track'		=> base64_encode( $this->redirect ),
 		], trailingslashit( $this->get_activation_page() ) );
 
 		return apply_filters( 'pluggable-activation_url', $activation_url, $this->plugin );
@@ -399,7 +415,6 @@ class License {
 
 	public function get_deactivation_url() {
 		$query					= isset( $_GET ) ? $_GET : [];
-		$query['item_id']		= $this->item_id;
 		$query['item_slug']		= $this->slug;
 		$query['pl-nonce']		= wp_create_nonce( 'pluggable' );
 		$query['pl-license']	= 'deactivate';
@@ -412,7 +427,7 @@ class License {
 	public function get_renewal_url() {
 		$query = [
 			'edd_license_key'	=> $this->get_license_key(),
-			'download_id'		=> $this->item_id,
+			'download_id'		=> $this->get_license_item_id(),
 		];
 
 		$renewal_url = add_query_arg( $query, trailingslashit( $this->server ) . 'order' );
@@ -442,6 +457,15 @@ class License {
 	// option_key in the wp_options table
 	public function get_license_meta_name() {
 		return "_license_{$this->slug}_meta";
+	}
+
+	// option_key in the wp_options table
+	public function get_license_item_id_name() {
+		return "_license_{$this->slug}_item_id";
+	}
+
+	public function get_license_item_id() {
+		return get_option( $this->get_license_item_id_name() );
 	}
 
 	public function get_license_key() {
