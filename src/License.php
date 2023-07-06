@@ -168,7 +168,7 @@ class License {
 			$notice = '';
 			$notice .= '<p>' . sprintf( __( '<strong>ALERT:</strong> In order to enjoy the features of <strong>%1$s</strong>, you need to activate the license first. Sorry, but the plugin won\'t work without activation! Please <a href="%2$s">activate it now</a>.', 'pluggable' ), $this->name, $this->get_activation_url() ) . '</p>';
 
-			echo '<div class="notice notice-error">' . $notice . '</div>';
+			echo '<div class="notice notice-error cx-notice cx-shadow">' . $notice . '</div>';
 		}
 
 		// about to expire?
@@ -177,7 +177,7 @@ class License {
 			$notice = '';
 			$notice .= '<p>' . sprintf( __( '<strong>ALERT:</strong> Your license for <strong>%1$s</strong> is about to expire in <strong>%2$s</strong>. The plugin will stop working without a valid license key. <a href="%3$s">Renew your license</a> now and get a special <strong>%4$s discount</strong>!', 'pluggable' ), $this->name, human_time_diff( $expiry, time() ), $this->get_renewal_url(), '20%' ) . '</p>';
 
-			echo '<div class="notice notice-error">' . $notice . '</div>';
+			echo '<div class="notice notice-error cx-notice cx-shadow">' . $notice . '</div>';
 		}
 
 		// expired to invalid license?
@@ -186,7 +186,7 @@ class License {
 			$notice = '';
 			$notice .= '<p>' . sprintf( __( '<strong>WARNING:</strong> It looks like <strong>%1$s</strong> can\'t connect to our server and is unable to receive updates! The plugin might stop working if it\'s not connected. <a href="%2$s">Reconnect Now</a>.', 'pluggable' ), $this->name, $this->get_deactivation_url() ) . '</p>';
 
-			echo '<div class="notice notice-warning">' . $notice . '</div>';
+			echo '<div class="notice notice-warning cx-notice cx-shadow">' . $notice . '</div>';
 		}
 	}
 
