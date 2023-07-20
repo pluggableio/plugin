@@ -54,13 +54,14 @@ class License {
 	 * 		string $server the API server
 	 * ]
 	 */
-	public function __construct( $plugin,$args = [] ) {
+	public function __construct( $file, $args = [] ) {
 
 		if( ! function_exists( 'get_plugin_data' ) ) {
 			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		}
 
-		$this->plugin 	= get_plugin_data( $plugin );
+		$this->file 	= $file;
+		$this->plugin 	= get_plugin_data( $file );
 		$this->slug		= $this->plugin['TextDomain'];
 		$this->name		= $this->plugin['Name'];
 
@@ -81,7 +82,8 @@ class License {
 	}
 
 	public function hooks() {
-		register_activation_hook( __FILE__, [ $this, 'install' ] );
+		register_activation_hook( $this->file, [ $this, 'install' ] );
+		register_deactivation_hook( $this->file, [ $this, 'uninstall' ] );
 		add_action( 'pluggable-daily', [ $this, 'validate' ] );
 		add_action( 'admin_init', [ $this, 'init' ] );
 		add_action( 'admin_notices', [ $this, 'show_notices' ] );
@@ -94,12 +96,18 @@ class License {
 	 * @since 1.0
 	 */
 	public function install() {
-		/**
-		 * Schedule an event to sync help docs
-		 */
 		if ( ! wp_next_scheduled ( 'pluggable-daily' )) {
 		    wp_schedule_event( time(), 'daily', 'pluggable-daily' );
 		}
+	}
+
+	/**
+	 * Uninstaller. Runs once when the plugin is deactivated.
+	 *
+	 * @since 1.0
+	 */
+	public function uninstall() {
+		wp_clear_scheduled_hook( 'pluggable-daily' );
 	}
 
 	public function validate() {
