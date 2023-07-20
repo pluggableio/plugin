@@ -75,7 +75,8 @@ class License {
 		$this->redirect 	= $this->args['redirect'];
 		$this->item_id		= $this->args['item_id'];
 		
-		$this->plugin['license'] = $this;
+		$this->plugin['license']	= $this;
+		$this->plugin['basename']	= plugin_basename( $file );
 		$update	= new Update( $this->plugin, $this->server );
 
 		$this->hooks();
