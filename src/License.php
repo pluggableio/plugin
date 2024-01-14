@@ -190,7 +190,7 @@ class License {
 		}
 
 		// expired to invalid license?
-		if( $this->_is_activated() && ( $this->_is_invalid() || $this->_is_expired() ) && apply_filters( 'pluggable-show_validation_notice', true, $this->plugin ) ) {
+		if( $this->_is_activated() && ( $this->_is_invalid() || $this->_is_expired() ) && apply_filters( 'pluggable-show_validation_notice', false, $this->plugin ) ) {
 
 			$notice = '';
 			$notice .= '<p>' . sprintf( __( '<strong>WARNING:</strong> It looks like <strong>%1$s</strong> can\'t connect to our server and is unable to receive updates! The plugin might stop working if it\'s not connected. <a href="%2$s">Reconnect Now</a>.', 'pluggable' ), $this->name, $this->get_deactivation_url() ) . '</p>';
