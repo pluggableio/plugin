@@ -45,6 +45,12 @@ class License {
 	 */
 	public $validating = false;
 
+	public $file;
+
+	public $args;
+
+	public $item_id;
+
 	/**
 	 * @param string $plugin the plugin __FILE__
 	 * 
