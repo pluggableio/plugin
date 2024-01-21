@@ -17,6 +17,8 @@ class Update {
 	private $version     = '';
 	private $wp_override = false;
 	private $cache_key   = '';
+	private $basename;
+	private $beta;
 
 	private $health_check_timeout = 5;
 
