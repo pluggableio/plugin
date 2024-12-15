@@ -60,14 +60,10 @@ class License {
 	 * 		string $server the API server
 	 * ]
 	 */
-	public function __construct( $file, $args = [] ) {
+	public function __construct( $plugin, $args = [] ) {
 
-		if( ! function_exists( 'get_plugin_data' ) ) {
-			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
-		}
-
-		$this->file 	= $file;
-		$this->plugin 	= get_plugin_data( $file );
+		$this->plugin 	= $plugin;
+		$this->file 	= $plugin['file'];
 		$this->slug		= $this->plugin['TextDomain'];
 		$this->name		= $this->plugin['Name'];
 
@@ -82,7 +78,7 @@ class License {
 		$this->item_id		= $this->args['item_id'];
 		
 		$this->plugin['license']	= $this;
-		$this->plugin['basename']	= plugin_basename( $file );
+		$this->plugin['basename'] = plugin_basename( $this->file );
 		$update	= new Update( $this->plugin, $this->server );
 
 		$this->hooks();

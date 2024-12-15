@@ -41,7 +41,7 @@ class Update {
 			'version' => $this->plugin['Version'],
 			'license' => $this->plugin['license']->get_license_key(),
 			'item_id' => $this->plugin['license']->get_license_item_id(),
-			'author'  => $this->plugin['Author'],
+			'author'  => isset( $this->plugin['Author' ] ) ? $this->plugin[ 'Author' ] : '',
 			'beta'    => isset( $this->plugin['beta'] ) && $this->plugin['beta'],
 		];
 
