@@ -2,9 +2,9 @@
     "name": "pluggable/plugin",
     "type": "library",
     "description": "License management toolkit for Pluggable plugins",
-    "version": "0.98.1",
+    "version": "1.0.0",
     "keywords": ["plugin","pluggable"],
-    "homepage": "https://bitbucket.org/pluggableio/plugin/",
+    "homepage": "https://github.com/pluggableio/plugin/",
     "license": "GPL-3.0-or-later",
     "authors": [
         {
