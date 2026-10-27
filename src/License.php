@@ -122,8 +122,10 @@ class License {
 			$this->validating = true;
 
 			$validation = $this->do( 'check', $this->get_license_key(), $this->name ) ;
+			if( empty( $validation['data'] ) ) return;
 			if( $validation['status'] != true ) {
 				update_option( $this->get_license_status_name(), 'invalid' );
+				if( ! empty( $validation['data']->expires ) ) update_option( $this->get_license_expiry_name(), ( $validation['data']->expires == 'lifetime' ? 4765132799 : strtotime( $validation['data']->expires ) ) );
 			}
 			else {
 				update_option( $this->get_license_status_name(), 'valid' );
@@ -275,7 +277,7 @@ class License {
 
 		// for activate and deactivate, if slug doesn't match, abort
 		// if( in_array( $action, [ 'activate', 'deactivate' ] ) && ( ! isset( $_GET['item_slug'] ) || $_GET['item_slug'] != $this->slug ) ) return;
-		if( ! in_array( $action, [ 'activate', 'deactivate' ] ) ) return;
+		if( ! in_array( $action, [ 'activate', 'deactivate' ] ) && $this->validating !== true ) return;
 
 		$_response = [
 			'status'	=> false,
@@ -404,6 +406,7 @@ class License {
 			} else {
 				$_response['status']	= false;
 				$_response['message']	= __( 'License invalid', 'pluggable' );
+				$_response['data']		= $license_data;
 			}
 		}
 
