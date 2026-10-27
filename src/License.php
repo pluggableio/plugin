@@ -125,6 +125,7 @@ class License {
 			if( empty( $validation['data'] ) ) return;
 			if( $validation['status'] != true ) {
 				update_option( $this->get_license_status_name(), 'invalid' );
+				if( ! empty( $validation['data']->expires ) ) update_option( $this->get_license_expiry_name(), ( $validation['data']->expires == 'lifetime' ? 4765132799 : strtotime( $validation['data']->expires ) ) );
 			}
 			else {
 				update_option( $this->get_license_status_name(), 'valid' );
